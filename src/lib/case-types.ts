@@ -23,6 +23,10 @@ type WorkflowMediaDisplay = {
 
 export type WorkflowMedia = WorkflowMediaDisplay & (
   | {
+      type: 'placeholder';
+      caption: string;
+    }
+  | {
       type: 'image';
       src: string;
       alt: string;

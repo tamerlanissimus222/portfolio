@@ -10,7 +10,7 @@ const initialNumber = String(cases[0]?.data.order ?? 1).padStart(2, '0');
 ---
 
 <nav class="case-switcher" aria-label="Select prosthetic case" data-case-switcher>
-  <div class="case-switcher__tabs" role="tablist" aria-label="Prosthetic cases">
+  <div class="case-switcher__tabs" role="tablist" aria-label="Prosthetic cases" style={`--case-tab-count: ${cases.length}`}>
     {cases.map((entry, index) => {
       const number = String(entry.data.order).padStart(2, '0');
       return (
@@ -22,10 +22,10 @@ const initialNumber = String(cases[0]?.data.order ?? 1).padStart(2, '0');
           aria-selected={index === 0 ? 'true' : 'false'}
           tabindex={index === 0 ? 0 : -1}
           data-case-select={number}
+          aria-label={`Case ${number}: ${entry.data.title}`}
           title={entry.data.title}
         >
-          <span class="case-switcher__tab-number">Case {number}</span>
-          <span class="case-switcher__tab-title">{entry.data.title}</span>
+          <span class="case-switcher__tab-number">{number}</span>
         </button>
       );
     })}

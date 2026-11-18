@@ -29,6 +29,11 @@ const workflowMediaDisplay = {
 
 const workflowMedia = z.discriminatedUnion('type', [
   z.object({
+    type: z.literal('placeholder'),
+    caption: z.string(),
+    ...workflowMediaDisplay,
+  }),
+  z.object({
     type: z.literal('image'),
     src: z.string(),
     alt: z.string(),

@@ -4170,6 +4170,24 @@ article[id] {
   grid-column: span 1;
 }
 
+.workflow-media--placeholder {
+  place-items: center;
+  border: 1px dashed rgb(194 231 151 / 0.35);
+  background: repeating-linear-gradient(-45deg, #0b1410, #0b1410 12px, #0d1812 12px, #0d1812 24px);
+  color: #aec2b1;
+}
+
+.workflow-media--placeholder:hover {
+  border-color: rgb(194 231 151 / 0.35);
+  box-shadow: none;
+}
+
+.workflow-media__placeholder-mark {
+  color: rgb(194 231 151 / 0.55);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 200;
+}
+
 .workflow-media--compact {
   min-height: clamp(13.5rem, 16vw, 16.5rem);
   grid-column: span 1;
@@ -5283,23 +5301,24 @@ article[id] {
 }
 
 .case-switcher__tabs {
-  justify-content: flex-start;
-  gap: 0.3rem;
-  overflow-x: auto;
+  display: grid;
+  grid-template-columns: repeat(var(--case-tab-count), minmax(0, 1fr));
+  width: 100%;
+  justify-content: stretch;
+  gap: clamp(0.12rem, 0.7vw, 0.3rem);
+  overflow: visible;
   border-bottom: 1px solid rgb(194 231 151 / 0.28);
-  scrollbar-width: thin;
-  scrollbar-color: rgb(194 231 151 / 0.35) transparent;
 }
 
 .case-switcher__tabs button {
   display: flex;
-  width: auto;
-  min-width: max-content;
+  width: 100%;
+  min-width: 0;
   min-height: 3.25rem;
   aspect-ratio: auto;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.75rem clamp(1rem, 2vw, 1.6rem);
+  justify-content: center;
+  padding: 0.75rem 0.25rem;
   border: 1px solid rgb(237 242 239 / 0.14);
   border-bottom: 0;
   border-radius: 0.65rem 0.65rem 0 0;
@@ -5307,7 +5326,7 @@ article[id] {
   color: #aebbb3;
   font-size: clamp(0.8rem, 1vw, 0.95rem);
   font-weight: 500;
-  text-align: left;
+  text-align: center;
   white-space: nowrap;
 }
 
@@ -5331,7 +5350,7 @@ article[id] {
 
 .case-switcher__tab-number {
   color: var(--color-accent);
-  font-size: 0.72em;
+  font-size: clamp(0.78rem, 1.1vw, 0.95rem);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -5366,7 +5385,7 @@ article[id] {
 
 @media (max-width: 40rem) {
   .case-switcher__tabs button {
-    padding-inline: 1rem;
+    padding-inline: 0.1rem;
   }
 }
 

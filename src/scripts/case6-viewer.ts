@@ -6,7 +6,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 type ModelPart = { node: string; label: string; color: number };
 type ModelConfig = { file: string; title: string; parts: ModelPart[] };
 
-const models: Record<'left' | 'right' | 'case7', ModelConfig> = {
+const models: Record<'left' | 'right' | 'case7' | 'case8' | 'case9', ModelConfig> = {
   left: {
     file: 'case6-left.glb',
     title: 'Left hand · six model elements',
@@ -45,6 +45,32 @@ const models: Record<'left' | 'right' | 'case7', ModelConfig> = {
       { node: 'Wrist OS', label: 'Wrist OS', color: 0x8f87cc },
     ],
   },
+  case8: {
+    file: 'case8-assembly.glb',
+    title: 'Case 08 · three model elements',
+    parts: [
+      { node: 'Scan', label: 'Scan', color: 0xd4a68a },
+      { node: 'Inner socket', label: 'Inner socket', color: 0x87cfd6 },
+      { node: 'Outer socket', label: 'Outer socket', color: 0x648fd9 },
+    ],
+  },
+  case9: {
+    file: 'case9-assembly.glb',
+    title: 'Case 09 · interactive assembly',
+    parts: [
+      { node: 'Scan', label: 'Scan', color: 0xd4a68a },
+      { node: 'Outer socket', label: 'Outer socket + forearm', color: 0x618bd6 },
+      { node: 'Inner socket', label: 'Inner socket + forearm', color: 0x87cfd6 },
+      { node: 'Battery', label: 'Battery', color: 0xeaa65c },
+      { node: 'Button', label: 'Button', color: 0xf2c772 },
+      { node: 'EMGPlate', label: 'EMG plate', color: 0x96bddf },
+      { node: 'FingersPinch', label: 'Fingers · pinch', color: 0xc275a6 },
+      { node: 'FingersPalm', label: 'Fingers · open', color: 0xde8261 },
+      { node: 'FinersFist', label: 'Fingers · fist', color: 0x998acc },
+      { node: 'HealthyHand', label: 'Healthy hand', color: 0xbaa196 },
+      { node: 'Tiny', label: 'Small component', color: 0x7dbba6 },
+    ],
+  },
 };
 
 const viewer = document.querySelector<HTMLElement>('[data-case-model-viewer]');
@@ -55,7 +81,11 @@ const parts = viewer?.querySelector<HTMLElement>('[data-viewer-parts]');
 const reset = viewer?.querySelector<HTMLButtonElement>('[data-viewer-reset]');
 
 if (viewer && viewport && status && title && parts && reset) {
-  const modelId = viewer.dataset.model === 'case7'
+  const modelId = viewer.dataset.model === 'case9'
+    ? 'case9'
+    : viewer.dataset.model === 'case8'
+    ? 'case8'
+    : viewer.dataset.model === 'case7'
     ? 'case7'
     : new URLSearchParams(location.search).get('hand') === 'right' ? 'right' : 'left';
   const config = models[modelId];
@@ -77,6 +107,7 @@ if (viewer && viewport && status && title && parts && reset) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.4;
+  renderer.localClippingEnabled = modelId === 'case8';
   viewport.appendChild(renderer.domElement);
 
   scene.add(new THREE.HemisphereLight(0xe7f0ff, 0x556780, 2.4));
@@ -98,10 +129,64 @@ if (viewer && viewport && status && title && parts && reset) {
   const objects = new Map<string, THREE.Object3D>();
   const buttons = new Map<string, HTMLButtonElement>();
   const sliders = new Map<string, HTMLInputElement>();
+  const sectionPanel = viewer.querySelector<HTMLElement>('[data-viewer-section]');
+  const axisFieldset = sectionPanel?.querySelector<HTMLFieldSetElement>('[data-section-axes]');
+  const axisInputs = sectionPanel ? [...sectionPanel.querySelectorAll<HTMLInputElement>('[data-section-axis]')] : [];
+  const depthSlider = sectionPanel?.querySelector<HTMLInputElement>('[data-section-depth]');
+  const depthValue = sectionPanel?.querySelector<HTMLOutputElement>('[data-section-value]');
+  const reverseButton = sectionPanel?.querySelector<HTMLButtonElement>('[data-section-reverse]');
+  const sectionPlane = new THREE.Plane();
+  let sectionBounds: THREE.Box3 | undefined;
+  let sectionReversed = false;
+  let clippingActive = false;
   const eye = '<svg class="viewer__eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12c2.6-4 6-6 10-6s7.4 2 10 6c-2.6 4-6 6-10 6S4.6 16 2 12Z"/><circle cx="12" cy="12" r="3"/><line x1="3" y1="21" x2="21" y2="3"/></svg>';
 
+  const updateSection = () => {
+    if (!sectionBounds || !depthSlider) return;
+    const axis = axisInputs.find((input) => input.checked)?.value as 'x' | 'y' | 'z' | undefined;
+    depthSlider.disabled = !axis;
+    if (reverseButton) reverseButton.disabled = !axis;
+    if (depthValue) depthValue.textContent = `${depthSlider.value}%`;
+
+    if (axis) {
+      const min = sectionBounds.min[axis];
+      const max = sectionBounds.max[axis];
+      const span = Math.max(max - min, 1e-6);
+      const depth = Number(depthSlider.value) / 100;
+      const threshold = sectionReversed
+        ? max - span * depth - (depth === 1 ? span * 0.001 : 0)
+        : min + span * depth + (depth === 1 ? span * 0.001 : 0);
+      const direction = sectionReversed ? -1 : 1;
+      sectionPlane.normal.set(axis === 'x' ? direction : 0, axis === 'y' ? direction : 0, axis === 'z' ? direction : 0);
+      sectionPlane.constant = sectionReversed ? threshold : -threshold;
+    }
+
+    const enabled = Boolean(axis);
+    if (enabled !== clippingActive) {
+      for (const object of objects.values()) {
+        object.traverse((child) => {
+          if (!(child instanceof THREE.Mesh) || !(child.material instanceof THREE.MeshStandardMaterial)) return;
+          child.material.clippingPlanes = enabled ? [sectionPlane] : [];
+          child.material.needsUpdate = true;
+        });
+      }
+      clippingActive = enabled;
+    }
+  };
+
+  axisInputs.forEach((input) => input.addEventListener('change', () => {
+    if (input.checked) axisInputs.forEach((other) => { if (other !== input) other.checked = false; });
+    updateSection();
+  }));
+  depthSlider?.addEventListener('input', updateSection);
+  reverseButton?.addEventListener('click', () => {
+    sectionReversed = !sectionReversed;
+    reverseButton.setAttribute('aria-pressed', String(sectionReversed));
+    updateSection();
+  });
+
   config.parts.forEach((part, index) => {
-    const isVisible = part.label === 'Palm';
+    const isVisible = part.node === (modelId === 'case9' ? 'Scan' : modelId === 'case8' ? 'Outer socket' : 'Palm');
     const row = document.createElement('div');
     row.className = 'viewer__part';
     row.style.setProperty('--part-color', `#${part.color.toString(16).padStart(6, '0')}`);
@@ -168,7 +253,10 @@ if (viewer && viewport && status && title && parts && reset) {
     const span = Math.max(size.x, size.y, size.z);
     const distance = span / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
     homeTarget.copy(center);
-    homePosition.copy(center).add(new THREE.Vector3(distance * 0.6, distance * 0.32, distance * 1.25));
+    const zoom = modelId === 'case9'
+      ? 1.1 * Math.max(1, 0.75 / camera.aspect)
+      : modelId === 'case8' ? 0.75 * Math.max(1, 0.75 / camera.aspect) : 1;
+    homePosition.copy(center).add(new THREE.Vector3(distance * 0.6 * zoom, distance * 0.32 * zoom, distance * 1.25 * zoom));
     camera.position.copy(homePosition);
     camera.near = Math.max(span / 10000, 0.01);
     camera.far = Math.max(span * 100, 100);
@@ -200,11 +288,12 @@ if (viewer && viewport && status && title && parts && reset) {
     if (event.total > 0) status.textContent = `Loading 3D model… ${Math.round(100 * event.loaded / event.total)}%`;
   }).then(({ scene: root }) => {
     scene.add(root);
-    frameModel(root);
+    frameModel(modelId === 'case9' ? root.getObjectByName('Scan') ?? root : root);
     config.parts.forEach((part, index) => {
       // GLTFLoader normalises punctuation in node names (notably "№1.obj").
       // The exported scene has one top-level node per ordered part.
-      const object = root.getObjectByName(part.node) ?? root.children[index];
+      const object = root.getObjectByName(part.node)
+        ?? (modelId === 'case9' ? root.getObjectByName(part.node.replaceAll(' ', '_')) : root.children[index]);
       if (!object) {
         const button = buttons.get(part.node);
         if (button) button.disabled = true;
@@ -221,9 +310,14 @@ if (viewer && viewport && status && title && parts && reset) {
           side: THREE.DoubleSide,
         });
       });
-      object.visible = part.label === 'Palm';
+      object.visible = part.node === (modelId === 'case9' ? 'Scan' : modelId === 'case8' ? 'Outer socket' : 'Palm');
       objects.set(part.node, object);
     });
+    if (sectionPanel) {
+      sectionBounds = new THREE.Box3().setFromObject(root);
+      if (axisFieldset) axisFieldset.disabled = false;
+      updateSection();
+    }
     status.hidden = true;
   }).catch(() => {
     status.textContent = 'The 3D model could not be loaded.';

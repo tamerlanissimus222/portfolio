@@ -12,9 +12,9 @@ interface Props {
 
 const { media, mediaId, index, role, overflow = false } = Astro.props;
 const firstSlide = media.type === 'carousel' ? media.slides[0] : undefined;
-const kindLabel = media.type === 'image' ? 'PHOTO' : media.type === 'carousel' ? 'PHOTO SERIES' : media.type === 'model3d' ? '3D / INTERACTIVE' : 'VIDEO';
-const poster = media.type === 'image' ? media.src : media.type === 'carousel' ? firstSlide?.src ?? '' : media.poster;
-const mediaAlt = media.type === 'carousel' ? firstSlide?.alt ?? media.caption : media.alt;
+const kindLabel = media.type === 'placeholder' ? 'VIDEO SLOT' : media.type === 'image' ? 'PHOTO' : media.type === 'carousel' ? 'PHOTO SERIES' : media.type === 'model3d' ? '3D / INTERACTIVE' : 'VIDEO';
+const poster = media.type === 'placeholder' ? '' : media.type === 'image' ? media.src : media.type === 'carousel' ? firstSlide?.src ?? '' : media.poster;
+const mediaAlt = media.type === 'placeholder' ? media.caption : media.type === 'carousel' ? firstSlide?.alt ?? media.caption : media.alt;
 const aspect = media.aspect ?? (media.type === 'model3d' ? 'square' : media.type === 'youtube' || media.type === 'localVideo' ? 'wide' : 'landscape');
 const objectFit = media.objectFit ?? media.fit ?? 'contain';
 const objectPosition = media.objectPosition ?? 'center center';
@@ -28,7 +28,7 @@ const intrinsicSize = aspect === 'portrait'
     : aspect === 'wide'
       ? { width: 1600, height: 900 }
       : { width: 1200, height: 900 };
-const source = media.type === 'image'
+const source = media.type === 'placeholder' ? '' : media.type === 'image'
   ? withBase(media.src)
   : media.type === 'carousel'
     ? withBase(firstSlide?.src ?? '')
@@ -39,7 +39,22 @@ const source = media.type === 'image'
       : withBase(media.src);
 ---
 
-{media.type === 'carousel' ? (
+{media.type === 'placeholder' ? (
+  <div
+    class:list={['workflow-media', 'workflow-media--placeholder', `workflow-media--${role}`, { 'workflow-media--overflow': overflow }]}
+    id={mediaId}
+    role="listitem"
+    aria-label={media.caption}
+    data-media-role={role}
+    data-media-aspect={aspect}
+    data-tile-span={tileSpan}
+  >
+    <span class="workflow-media__type">{kindLabel}</span>
+    <span class="workflow-media__index" aria-hidden="true">{String(index).padStart(2, '0')}</span>
+    <span class="workflow-media__placeholder-mark" aria-hidden="true">＋</span>
+    <span class="workflow-media__caption">{media.caption}</span>
+  </div>
+) : media.type === 'carousel' ? (
   <article
     class:list={['workflow-media', 'workflow-media--carousel', `workflow-media--${role}`, { 'workflow-media--dominant': role === 'featured' || role === 'primary', 'workflow-media--supporting': role !== 'featured' && role !== 'primary', 'workflow-media--overflow': overflow }]}
     id={mediaId}

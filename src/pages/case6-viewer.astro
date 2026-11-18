@@ -1,27 +1,30 @@
 ---
 import { withBase } from '@/lib/paths';
 const case7 = Astro.props.case7 === true;
+const case8 = Astro.props.case8 === true;
+const case9 = Astro.props.case9 === true;
+const caseNumber = case9 ? '09' : case8 ? '08' : case7 ? '07' : '06';
 ---
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{case7 ? 'Case 07 · Interactive 3D assembly' : 'Case 06 · Interactive 3D models'}</title>
+    <title>Case {caseNumber} · Interactive 3D model</title>
   </head>
   <body>
     <main
       class="viewer"
       data-case-model-viewer
-      data-model={case7 ? 'case7' : undefined}
-      data-asset-base={withBase(case7 ? 'media/case7/' : 'media/case6/')}
+      data-model={case9 ? 'case9' : case8 ? 'case8' : case7 ? 'case7' : undefined}
+      data-asset-base={withBase(case9 ? 'media/case9/' : case8 ? 'media/case8/' : case7 ? 'media/case7/' : 'media/case6/')}
       data-decoder-base={withBase('vendor/draco/')}
     >
       <div class="viewer__stage">
         <div class="viewer__canvas" data-viewer-canvas aria-label="Interactive 3D model. Drag to rotate; scroll or pinch to zoom."></div>
         <p class="viewer__status" data-viewer-status role="status" aria-live="polite">Loading 3D model…</p>
         <div class="viewer__topline">
-          <span data-viewer-title>{case7 ? 'Case 07 · 3D model' : 'Case 06 · 3D model'}</span>
+          <span data-viewer-title>Case {caseNumber} · 3D model</span>
           <button type="button" data-viewer-reset aria-label="Reset model view">Reset view ↺</button>
         </div>
         <p class="viewer__hint">Drag to rotate <span aria-hidden="true">·</span> Scroll or pinch to zoom</p>
@@ -30,6 +33,23 @@ const case7 = Astro.props.case7 === true;
         <h1>Model elements</h1>
         <p>Show a part with the eye icon, then adjust its opacity.</p>
         <div class="viewer__parts" data-viewer-parts role="group" aria-label="Show or hide model elements and set opacity"></div>
+        {case8 && (
+          <section class="viewer__section" data-viewer-section aria-label="Model section controls">
+            <h2>Section view</h2>
+            <fieldset class="viewer__section-axes" data-section-axes disabled>
+              <legend>Choose one model axis</legend>
+              <label><input type="checkbox" value="x" data-section-axis /> X</label>
+              <label><input type="checkbox" value="y" data-section-axis /> Y</label>
+              <label><input type="checkbox" value="z" data-section-axis /> Z</label>
+            </fieldset>
+            <label class="viewer__section-depth" for="case8-section-depth">
+              <span>Section depth</span>
+              <output data-section-value for="case8-section-depth">50%</output>
+            </label>
+            <input id="case8-section-depth" class="viewer__section-slider" type="range" min="0" max="100" step="1" value="50" data-section-depth disabled />
+            <button class="viewer__section-reverse" type="button" data-section-reverse aria-pressed="false" disabled>↔ Reverse cut direction</button>
+          </section>
+        )}
       </aside>
     </main>
     <script>
@@ -67,6 +87,20 @@ const case7 = Astro.props.case7 === true;
   :global(.viewer__swatch) { width: .55rem; height: .55rem; flex: 0 0 auto; border-radius: 50%; background: var(--part-color); }
   :global(.viewer__opacity) { display: grid; grid-template-columns: 1fr auto; gap: .25rem .5rem; margin-top: .45rem; color: #c9d7e7; font-size: .72rem; }
   :global(.viewer__opacity input) { grid-column: 1 / -1; width: 100%; margin: .15rem 0 0; accent-color: var(--part-color); cursor: pointer; }
+  .viewer__section { display: grid; gap: .65rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #48617f; }
+  .viewer__section h2 { margin: 0; font-size: .9rem; letter-spacing: .1em; text-transform: uppercase; }
+  .viewer__section-axes { display: flex; gap: .45rem; min-width: 0; margin: 0; padding: 0; border: 0; }
+  .viewer__section-axes legend { margin-bottom: .5rem; padding: 0; color: #aebdd0; font-size: .79rem; }
+  .viewer__section-axes label { display: inline-flex; flex: 1; align-items: center; justify-content: center; gap: .4rem; min-width: 0; padding: .55rem .3rem; border: 1px solid #48617f; border-radius: .3rem; background: #132943; cursor: pointer; font-size: .88rem; }
+  .viewer__section-axes label:has(input:checked) { border-color: #a5c9e8; background: #254769; color: #fff; }
+  .viewer__section-axes input { width: 1rem; height: 1rem; margin: 0; accent-color: #91bff0; cursor: pointer; }
+  .viewer__section-axes label:focus-within { outline: 2px solid #a5c9e8; outline-offset: 2px; }
+  .viewer__section-depth { display: flex; justify-content: space-between; gap: .5rem; color: #c9d7e7; font-size: .8rem; }
+  .viewer__section-slider { width: 100%; margin: 0; accent-color: #91bff0; cursor: pointer; }
+  .viewer__section-reverse { min-height: 2.4rem; padding: .45rem .6rem; border: 1px solid #8ca1bf80; border-radius: .25rem; background: #11233dd9; color: #e9f0fb; cursor: pointer; font-size: .8rem; text-align: center; }
+  .viewer__section-reverse:hover, .viewer__section-reverse:focus-visible { border-color: #b6c8e4; background: #243d60; outline: none; }
+  .viewer__section-reverse[aria-pressed='true'] { border-color: #a5c9e8; background: #254769; }
+  .viewer__section-slider:disabled, .viewer__section-reverse:disabled { cursor: not-allowed; opacity: .45; }
   .viewer__status { position: absolute; z-index: 3; top: 50%; left: 50%; width: min(28rem, 80%); margin: 0; padding: .8rem 1rem; transform: translate(-50%, -50%); border: 1px solid #8ca1bf80; background: #08192de8; color: #edf2f7; text-align: center; font-size: .82rem; }
   .viewer__status[hidden] { display: none; }
   @media (max-width: 48rem) {
@@ -78,6 +112,13 @@ const case7 = Astro.props.case7 === true;
     .viewer__sidebar > p { font-size: .68rem; }
     :global(.viewer__part) { padding: .35rem; }
     :global(.viewer__parts button) { gap: .3rem; padding: .3rem; font-size: .84rem; }
+    .viewer__section { gap: .5rem; margin-top: .9rem; padding-top: .75rem; }
+    .viewer__section h2 { font-size: .72rem; }
+    .viewer__section-axes { flex-wrap: wrap; gap: .25rem; }
+    .viewer__section-axes legend { font-size: .68rem; }
+    .viewer__section-axes label { gap: .2rem; padding: .4rem .2rem; font-size: .76rem; }
+    .viewer__section-axes input { width: .85rem; height: .85rem; }
+    .viewer__section-depth, .viewer__section-reverse { font-size: .7rem; }
     .viewer__hint { left: .5rem; font-size: .64rem; }
   }
 </style>
