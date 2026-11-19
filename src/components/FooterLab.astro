@@ -9,7 +9,12 @@ import { profile } from '@/data/profile';
       <h2>Let’s improve the fit<br />between people and technology.</h2>
     </div>
     <div class="site-footer__contact">
-      <a href={`mailto:${profile.email}`}>{profile.email} <span>placeholder</span></a>
+      <a class="site-footer__email" href={`mailto:${profile.email}`}>{profile.email}</a>
+      <ul class="site-footer__links" aria-label="Other contact options">
+        <li><a href={`tel:${profile.phone.replace(/[^\d+]/g, '')}`}>{profile.phone}</a></li>
+        <li><a href={profile.linkedIn} target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+        <li><a href={profile.telegram} target="_blank" rel="noopener noreferrer">Telegram</a></li>
+      </ul>
       <p>{profile.availability}</p>
     </div>
   </div>

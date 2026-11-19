@@ -1706,17 +1706,30 @@ ol {
   border-top: 1px solid var(--color-line-dark);
 }
 
-.site-footer__contact a {
+.site-footer__email {
   color: var(--color-accent);
   font-family: var(--font-display);
   font-size: var(--text-lg);
 }
 
-.site-footer__contact a span {
-  color: var(--color-warning);
+.site-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.25rem;
+  margin-top: var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.site-footer__links a {
+  color: var(--color-paper);
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-  text-transform: uppercase;
+  font-size: var(--text-sm);
+}
+
+.site-footer__links a:hover,
+.site-footer__links a:focus-visible {
+  color: var(--color-accent);
 }
 
 .site-footer__contact p {
