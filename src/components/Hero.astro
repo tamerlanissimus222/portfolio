@@ -34,8 +34,13 @@ import { withBase } from '@/lib/paths';
 
       <div class="hero__cta">
         <a class="button button--primary" href="#cases">Explore the work <span aria-hidden="true">↓</span></a>
-        <a class="button button--ghost" href={`mailto:${profile.email}`}>Contact <span aria-hidden="true">↗</span></a>
       </div>
+      <address class="hero__contacts" aria-label="Contact details">
+        <a href={`mailto:${profile.email}`}>{profile.email}</a>
+        <a href={`tel:${profile.phone.replace(/[^\d+]/g, '')}`}>{profile.phone}</a>
+        <a href={profile.linkedIn} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href={profile.telegram} target="_blank" rel="noopener noreferrer">Telegram</a>
+      </address>
     </div>
 
     <div class="hero__expertise" data-reveal>
