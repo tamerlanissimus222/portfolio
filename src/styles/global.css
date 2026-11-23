@@ -5607,36 +5607,49 @@ article[id] {
   }
 }
 
-@media (min-width: 74.01rem) {
-  #case-panel-01 .workflow-board {
-    display: grid;
-    align-self: stretch;
+@media (min-width: 80.01rem) {
+  #case-panel-01 .case-study__composition {
+    gap: 0.625rem;
+    grid-template-columns: min(25.75rem, calc(23.5% + 5.5rem)) minmax(0, 1fr);
   }
 
-  #case-panel-01 .workflow-board__route {
-    display: grid;
+  #case-panel-01 .case-context--narrative {
+    max-width: none;
+    padding: 1rem 0.875rem;
+  }
+
+  #case-panel-01 .case-context__header h3 {
+    max-width: none;
+  }
+
+  #case-panel-01 .case-context__narrative {
+    line-height: 1.5;
+  }
+
+  #case-panel-01 .case-context__narrative p + p {
+    margin-top: 0.75rem;
+  }
+
+  #case-panel-01 .workflow-board {
+    padding: 0.5rem;
+  }
+
+  #case-panel-01 .workflow-path,
+  #case-panel-01 .workflow-stage__header::before,
+  #case-panel-01 .workflow-stage__header::after {
+    display: none;
   }
 
   #case-panel-01 .workflow-board__stages {
-    grid-template-rows: repeat(3, minmax(0, 1fr));
+    padding-left: 0;
   }
 
   #case-panel-01 .workflow-stage {
-    height: 100%;
-    grid-template-rows: auto minmax(0, 1fr);
-  }
-
-  #case-panel-01 .workflow-stage__media {
-    height: 100%;
-    align-items: stretch;
-  }
-
-  #case-panel-01 .workflow-media {
-    height: 100%;
+    padding: 0.5rem;
   }
 }
 
-@media (min-width: 60.01rem) and (max-width: 74rem) {
+@media (min-width: 60.01rem) and (max-width: 80rem) {
   #case-panel-01 .case-study__composition {
     display: block;
   }
