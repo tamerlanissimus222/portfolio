@@ -289,7 +289,7 @@ if (caseRoot) {
   const dialogPrevious = dialog?.querySelector<HTMLButtonElement>('[data-dialog-previous]');
   const dialogNext = dialog?.querySelector<HTMLButtonElement>('[data-dialog-next]');
   const dialogCounter = dialog?.querySelector<HTMLElement>('[data-dialog-counter]');
-  let dialogGalleryItems: HTMLButtonElement[] = [];
+  let dialogGalleryItems: HTMLElement[] = [];
   let dialogGalleryIndex = -1;
 
   const updateDialogGalleryControls = () => {
@@ -328,11 +328,11 @@ if (caseRoot) {
     dialog?.removeAttribute('data-loading');
   };
 
-  const openMedia = (trigger: HTMLButtonElement) => {
+  const openMedia = (trigger: HTMLElement) => {
     if (!dialog || !dialogImage || !dialogFrame || !dialogVideo || !dialogKind || !dialogCaption || !dialogDescription || !dialogStatus || !dialogExternal) return;
     clearDialogMedia();
     const type = trigger.dataset.mediaType ?? 'image';
-    const source = trigger.dataset.mediaSrc ?? '';
+    const source = trigger.dataset.mediaSrc ?? (trigger instanceof HTMLAnchorElement ? trigger.href : '');
     const caption = trigger.dataset.mediaCaption ?? 'Case evidence';
     const alt = trigger.dataset.mediaAlt ?? '';
     const mediaGroup = trigger.dataset.mediaGroup;
@@ -392,8 +392,9 @@ if (caseRoot) {
       return;
     }
 
-    const mediaButton = target.closest<HTMLButtonElement>('[data-case-media-open]');
+    const mediaButton = target.closest<HTMLElement>('[data-case-media-open]');
     if (mediaButton) {
+      if (mediaButton instanceof HTMLAnchorElement) event.preventDefault();
       openMedia(mediaButton);
       return;
     }

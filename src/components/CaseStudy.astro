@@ -24,17 +24,13 @@ const { Content } = await render(entry);
   hidden={!active}
 >
   <div class="case-study__composition">
-    <CaseContext data={data} caseId={caseId} caseNumber={caseNumber} />
+    <CaseContext data={data} caseId={caseId} caseNumber={caseNumber}>
+      {data.narrative && <Fragment slot="narrative"><Content /></Fragment>}
+    </CaseContext>
     <WorkflowBoard
       caseId={caseId}
       stages={data.stages}
       validationStatus={data.validation.status}
     />
   </div>
-  {data.narrative && (
-    <section class="case-story" aria-labelledby={`${caseId}-story-title`}>
-      <h4 id={`${caseId}-story-title`}>Case story</h4>
-      <div class="case-story__prose"><Content /></div>
-    </section>
-  )}
 </article>

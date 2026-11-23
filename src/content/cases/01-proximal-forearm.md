@@ -99,13 +99,13 @@ stages:
         caption: "Final fitting check"
 ---
 
-This prosthesis was developed for a 19-year-old user with a short congenital forearm residual limb. Having previously used prosthetic devices, he wanted something beyond standard functionality this time: a custom-themed design based on a reference [concept](https://sketchfab.com/3d-models/bionic-arm-horizon-zero-dawn-concept-8fcd315dfbda4eda94e327519764690b) he provided.
+This prosthesis was developed for a 19-year-old user with a short congenital forearm residual limb. Having previously used prosthetic devices, he wanted something beyond standard functionality this time: a custom-themed design based on a reference <a href="https://sketchfab.com/3d-models/bionic-arm-horizon-zero-dawn-concept-8fcd315dfbda4eda94e327519764690b" target="_blank" rel="noopener noreferrer">concept</a> he provided.
 
 The main challenge, however, was not the external design but the user's anatomy and soft tissue characteristics. An elevated BMI and a thick layer of firm, relatively low-compliance subcutaneous tissue made anatomical landmarks difficult to identify visually. These characteristics also significantly narrowed the range of socket volumes that could provide a comfortable fit.
 
 Before 3D scanning, I marked key anatomical landmarks on the residual limb to make them identifiable in the resulting scan. These markers helped me position the functional regions of the socket during digital modelling. Nevertheless, achieving a comfortable socket volume required a second iteration. The first socket provided a snug fit and a strong sense of prosthetic control, but also created excessive negative pressure, making it uncomfortable during prolonged use.
 
-The external design also went through two iterations. Initially, I aimed to model an anatomically inspired muscular relief of the forearm from scratch in CAD. The initial CAD model [did not meet my aesthetic expectations](media/case1-originals/initial-cad-model.png), so I refined the geometry in ZBrush to achieve a more organic and natural-looking form.
+The external design also went through two iterations. Initially, I aimed to model an anatomically inspired muscular relief of the forearm from scratch in CAD. The initial CAD model <a href="media/case1-originals/initial-cad-model.png" data-case-media-open data-media-type="image" data-media-caption="Initial CAD model" data-media-alt="Initial CAD model of the prosthesis before refinement in ZBrush" aria-haspopup="dialog">did not meet my aesthetic expectations</a>, so I refined the geometry in ZBrush to achieve a more organic and natural-looking form.
 
 The prosthesis consisted of a flexible inner socket made from Morphlex TPU and a rigid outer socket made from polycarbonate (PC).
 

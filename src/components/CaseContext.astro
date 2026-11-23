@@ -10,13 +10,16 @@ interface Props {
 const { data, caseId, caseNumber } = Astro.props;
 ---
 
-<aside class="case-context" id={`${caseId}-overview`} aria-labelledby={`${caseId}-title`}>
+<aside class:list={['case-context', { 'case-context--narrative': data.narrative }]} id={`${caseId}-overview`} aria-labelledby={`${caseId}-title`}>
   <header class="case-context__header">
     <p class="case-technical-label">CASE {caseNumber}</p>
     <h3 id={`${caseId}-title`}>{data.title}</h3>
     <p class="case-context__level">{data.level}</p>
   </header>
 
+  {data.narrative ? (
+    <div class="case-context__narrative"><slot name="narrative" /></div>
+  ) : <>
   <dl class="case-context__facts">
     <div>
       <dt>Context</dt>
@@ -50,4 +53,5 @@ const { data, caseId, caseNumber } = Astro.props;
   <ul class="case-context__tags" aria-label="Case methods">
     {data.tags.map((tag) => <li>{tag}</li>)}
   </ul>
+  </>}
 </aside>
