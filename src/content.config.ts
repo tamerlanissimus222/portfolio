@@ -105,6 +105,7 @@ const cases = defineCollection({
     }),
     tags: z.array(z.string()),
     stages: z.array(workflowStage).min(1),
+    narrative: z.boolean().default(false),
     placeholder: z.boolean().default(false),
   }),
 });

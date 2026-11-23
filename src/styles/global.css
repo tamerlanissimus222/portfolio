@@ -3805,6 +3805,56 @@ article[id] {
   grid-template-columns: clamp(18.75rem, 23.5%, 21.875rem) minmax(0, 1fr);
 }
 
+.case-story {
+  display: grid;
+  margin-top: clamp(1.5rem, 3vw, 2.75rem);
+  padding: clamp(1.5rem, 2.5vw, 2.25rem) 0;
+  border-top: 1px solid var(--case-line);
+  gap: clamp(1.25rem, 1.5vw, 1.75rem);
+  grid-template-columns: clamp(18.75rem, 23.5%, 21.875rem) minmax(0, 1fr);
+}
+
+.case-story h4 {
+  margin: 0;
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.case-story__prose {
+  max-width: 74ch;
+  color: #c7d1cb;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.case-story__prose p + p {
+  margin-top: 1.2rem;
+}
+
+.case-story__prose a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.case-story__prose a:hover,
+.case-story__prose a:focus-visible {
+  color: #e0ffab;
+}
+
+@media (max-width: 60rem) {
+  .case-story {
+    display: block;
+  }
+
+  .case-story__prose {
+    margin-top: 1rem;
+  }
+}
+
 .case-context {
   display: flex;
   width: 100%;

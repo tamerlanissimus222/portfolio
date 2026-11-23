@@ -1,5 +1,5 @@
 ---
-import type { CollectionEntry } from 'astro:content';
+import { render, type CollectionEntry } from 'astro:content';
 import CaseContext from './CaseContext.astro';
 import WorkflowBoard from './WorkflowBoard.astro';
 
@@ -12,6 +12,7 @@ const { entry, active = false } = Astro.props;
 const { data } = entry;
 const caseNumber = String(data.order).padStart(2, '0');
 const caseId = `case-${caseNumber}`;
+const { Content } = await render(entry);
 ---
 
 <article
@@ -30,4 +31,10 @@ const caseId = `case-${caseNumber}`;
       validationStatus={data.validation.status}
     />
   </div>
+  {data.narrative && (
+    <section class="case-story" aria-labelledby={`${caseId}-story-title`}>
+      <h4 id={`${caseId}-story-title`}>Case story</h4>
+      <div class="case-story__prose"><Content /></div>
+    </section>
+  )}
 </article>

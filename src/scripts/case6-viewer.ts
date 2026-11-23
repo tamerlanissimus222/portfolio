@@ -6,7 +6,17 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 type ModelPart = { node: string; label: string; color: number };
 type ModelConfig = { file: string; title: string; parts: ModelPart[] };
 
-const models: Record<'left' | 'right' | 'case7' | 'case8' | 'case9', ModelConfig> = {
+const models: Record<'left' | 'right' | 'case1' | 'case7' | 'case8' | 'case9', ModelConfig> = {
+  case1: {
+    file: 'case1-assembly.glb',
+    title: 'Case 01 · scan and socket assembly',
+    parts: [
+      { node: 'Scan', label: 'Residual-limb scan', color: 0xd4a68a },
+      { node: 'metki', label: 'Anatomical markers', color: 0xb9d679 },
+      { node: 'IS V3 max Pom', label: 'Inner socket', color: 0x87cfd6 },
+      { node: 'OS V3 Pom', label: 'Outer socket', color: 0x648fd9 },
+    ],
+  },
   left: {
     file: 'case6-left.glb',
     title: 'Left hand · six model elements',
@@ -81,7 +91,9 @@ const parts = viewer?.querySelector<HTMLElement>('[data-viewer-parts]');
 const reset = viewer?.querySelector<HTMLButtonElement>('[data-viewer-reset]');
 
 if (viewer && viewport && status && title && parts && reset) {
-  const modelId = viewer.dataset.model === 'case9'
+  const modelId = viewer.dataset.model === 'case1'
+    ? 'case1'
+    : viewer.dataset.model === 'case9'
     ? 'case9'
     : viewer.dataset.model === 'case8'
     ? 'case8'
@@ -140,6 +152,9 @@ if (viewer && viewport && status && title && parts && reset) {
   let sectionReversed = false;
   let clippingActive = false;
   const eye = '<svg class="viewer__eye" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12c2.6-4 6-6 10-6s7.4 2 10 6c-2.6 4-6 6-10 6S4.6 16 2 12Z"/><circle cx="12" cy="12" r="3"/><line x1="3" y1="21" x2="21" y2="3"/></svg>';
+  const initiallyVisible = new Set(modelId === 'case1'
+    ? ['IS V3 max Pom', 'OS V3 Pom']
+    : [modelId === 'case9' ? 'Scan' : modelId === 'case8' ? 'Outer socket' : 'Palm']);
 
   const updateSection = () => {
     if (!sectionBounds || !depthSlider) return;
@@ -186,7 +201,7 @@ if (viewer && viewport && status && title && parts && reset) {
   });
 
   config.parts.forEach((part, index) => {
-    const isVisible = part.node === (modelId === 'case9' ? 'Scan' : modelId === 'case8' ? 'Outer socket' : 'Palm');
+    const isVisible = initiallyVisible.has(part.node);
     const row = document.createElement('div');
     row.className = 'viewer__part';
     row.style.setProperty('--part-color', `#${part.color.toString(16).padStart(6, '0')}`);
@@ -201,6 +216,7 @@ if (viewer && viewport && status && title && parts && reset) {
       button.setAttribute('aria-label', `${visible ? 'Hide' : 'Show'} ${part.label}`);
       const object = objects.get(part.node);
       if (object) object.visible = visible;
+      if (modelId === 'case1' && part.node === 'Scan') frameCase1();
     });
     const opacityLabel = document.createElement('label');
     opacityLabel.className = 'viewer__opacity';
@@ -245,8 +261,8 @@ if (viewer && viewport && status && title && parts && reset) {
   new ResizeObserver(resize).observe(viewport);
   resize();
 
-  const frameModel = (root: THREE.Object3D) => {
-    const box = new THREE.Box3().setFromObject(root);
+  const frameModel = (root: THREE.Object3D | THREE.Box3) => {
+    const box = root instanceof THREE.Box3 ? root : new THREE.Box3().setFromObject(root);
     if (box.isEmpty()) return;
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
@@ -255,7 +271,8 @@ if (viewer && viewport && status && title && parts && reset) {
     homeTarget.copy(center);
     const zoom = modelId === 'case9'
       ? 1.1 * Math.max(1, 0.75 / camera.aspect)
-      : modelId === 'case8' ? 0.75 * Math.max(1, 0.75 / camera.aspect) : 1;
+      : modelId === 'case8' ? 0.75 * Math.max(1, 0.75 / camera.aspect)
+      : modelId === 'case1' && objects.get('Scan')?.visible ? 1.3 : 1;
     homePosition.copy(center).add(new THREE.Vector3(distance * 0.6 * zoom, distance * 0.32 * zoom, distance * 1.25 * zoom));
     camera.position.copy(homePosition);
     camera.near = Math.max(span / 10000, 0.01);
@@ -265,6 +282,12 @@ if (viewer && viewport && status && title && parts && reset) {
     controls.minDistance = Math.max(span * 0.35, 0.01);
     controls.maxDistance = Math.max(span * 8, 10);
     controls.update();
+  };
+
+  const frameCase1 = () => {
+    const box = new THREE.Box3();
+    for (const object of objects.values()) if (object.visible) box.expandByObject(object);
+    if (!box.isEmpty()) frameModel(box);
   };
 
   reset.addEventListener('click', () => {
@@ -288,12 +311,17 @@ if (viewer && viewport && status && title && parts && reset) {
     if (event.total > 0) status.textContent = `Loading 3D model… ${Math.round(100 * event.loaded / event.total)}%`;
   }).then(({ scene: root }) => {
     scene.add(root);
-    frameModel(modelId === 'case9' ? root.getObjectByName('Scan') ?? root : root);
+    const frameObject = modelId === 'case1'
+      ? root.getObjectByName('OS_V3_Pom') ?? root.getObjectByName('OS V3 Pom') ?? root.children[5] ?? root
+      : modelId === 'case9' ? root.getObjectByName('Scan') ?? root : root;
+    frameModel(frameObject);
+    if (modelId === 'case1') root.children.forEach((child) => { child.visible = false; });
     config.parts.forEach((part, index) => {
       // GLTFLoader normalises punctuation in node names (notably "№1.obj").
       // The exported scene has one top-level node per ordered part.
       const object = root.getObjectByName(part.node)
-        ?? (modelId === 'case9' ? root.getObjectByName(part.node.replaceAll(' ', '_')) : root.children[index]);
+        ?? root.getObjectByName(part.node.replaceAll(' ', '_'))
+        ?? (modelId === 'case1' ? undefined : root.children[index]);
       if (!object) {
         const button = buttons.get(part.node);
         if (button) button.disabled = true;
@@ -310,9 +338,10 @@ if (viewer && viewport && status && title && parts && reset) {
           side: THREE.DoubleSide,
         });
       });
-      object.visible = part.node === (modelId === 'case9' ? 'Scan' : modelId === 'case8' ? 'Outer socket' : 'Palm');
+      object.visible = buttons.get(part.node)?.getAttribute('aria-pressed') === 'true';
       objects.set(part.node, object);
     });
+    if (modelId === 'case1' && objects.get('Scan')?.visible) frameCase1();
     if (sectionPanel) {
       sectionBounds = new THREE.Box3().setFromObject(root);
       if (axisFieldset) axisFieldset.disabled = false;

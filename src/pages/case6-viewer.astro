@@ -1,9 +1,10 @@
 ---
 import { withBase } from '@/lib/paths';
+const case1 = Astro.props.case1 === true;
 const case7 = Astro.props.case7 === true;
 const case8 = Astro.props.case8 === true;
 const case9 = Astro.props.case9 === true;
-const caseNumber = case9 ? '09' : case8 ? '08' : case7 ? '07' : '06';
+const caseNumber = case1 ? '01' : case9 ? '09' : case8 ? '08' : case7 ? '07' : '06';
 ---
 <!doctype html>
 <html lang="en">
@@ -16,8 +17,8 @@ const caseNumber = case9 ? '09' : case8 ? '08' : case7 ? '07' : '06';
     <main
       class="viewer"
       data-case-model-viewer
-      data-model={case9 ? 'case9' : case8 ? 'case8' : case7 ? 'case7' : undefined}
-      data-asset-base={withBase(case9 ? 'media/case9/' : case8 ? 'media/case8/' : case7 ? 'media/case7/' : 'media/case6/')}
+      data-model={case1 ? 'case1' : case9 ? 'case9' : case8 ? 'case8' : case7 ? 'case7' : undefined}
+      data-asset-base={withBase(case1 ? 'media/case1/' : case9 ? 'media/case9/' : case8 ? 'media/case8/' : case7 ? 'media/case7/' : 'media/case6/')}
       data-decoder-base={withBase('vendor/draco/')}
     >
       <div class="viewer__stage">
